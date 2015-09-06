@@ -20,6 +20,7 @@ Experimental Settings:
 Notes:
 
 For the multiple-class tasks, there are two options: 
+
 1. you can use function MultiSllgplvm(...) based on C. K. I. Williams's multiple-class GP classification code, 
 2. or you can use function MultiSllgplvm1VsRest(...) based on one versus rest scheme. 
 
