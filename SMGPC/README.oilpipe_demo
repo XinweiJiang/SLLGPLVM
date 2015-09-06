@@ -1,0 +1,277 @@
+%            Matlab code for Gaussian Processes for Classification:
+%                      GPCLASS version 0.2  10 Nov 97
+%       Copyright (c) David Barber and Christopher K I Williams (1997)
+
+%    This program is free software; you can redistribute it and/or modify
+%    it under the terms of the GNU General Public License as published by
+%    the Free Software Foundation; either version 2 of the License, or
+%    any later version.
+%
+%    This program is distributed in the hope that it will be useful,
+%    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%    GNU General Public License for more details.
+%
+%    You should have received a copy of the GNU General Public License
+%    along with this program; if not, write to the Free Software
+%    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+oilpipe_demo.m
+==============
+
+This is a demo for a three class problem using Gaussian Processes
+
+In this problem, the aim is to classify which of three types of flow
+(laminar, hydrogenous, amorphous) through the oilpipe is occuring,
+given a set (here taken to be only 6) of gamma ray readings through
+the pipe.
+
+Only the first 100 input/class examples contained in the file
+oildata.dat are used for this demo. These are then split into 40
+training examples and 60 test examples.
+
+
+
+The program is run as follows, producing the output
+>> oilpipe_demo
+
+Finding MAP hyperparameters:
+Cycle    1  Error   46.747705  Scale 5.000000e-01
+Cycle    2  Error   39.512155  Scale 2.500000e-01
+Cycle    3  Error   31.899757  Scale 1.250000e-01
+Cycle    4  Error   26.077373  Scale 6.250000e-02
+Cycle    5  Error   23.506122  Scale 3.125000e-02
+Cycle    6  Error   22.250673  Scale 1.562500e-02
+Cycle    7  Error   21.797002  Scale 7.812500e-03
+Cycle    8  Error   21.563244  Scale 3.906250e-03
+Cycle    9  Error   21.325488  Scale 1.953125e-03
+Cycle   10  Error   21.279361  Scale 9.765625e-04
+Warning: Maximum number of iterations has been exceeded
+
+HMC Sampling....please wait
+
+
+
+
+MAP Results
+test error rate = 3.333333 percent
+
+MAP hyperparameters:
+    class1    class2    class3
+
+ans =
+
+   -3.0571   -1.1318   -3.7693
+   -3.0505   -3.5768   -3.7531
+   -3.0533   -1.6065   -2.9522
+   -3.0658   -3.4213   -3.9885
+   -3.0489   -3.3955   -4.4490
+   -3.0446   -3.2333   -0.1046
+
+
+ covariance scale:
+
+ans =
+
+   -3.1453    3.6350    3.5203
+
+
+ covariance bias:
+
+ans =
+
+   -3.0770   -3.0615   -3.0651
+
+
+HMC Results
+test error rate = 3.333333 percent
+
+mean hyperparameters:
+    class1    class2    class3
+
+ans =
+
+   -5.8304   -0.5222   -6.9345
+   -1.2218   -2.1476   -3.3307
+   -4.0177   -5.1523   -4.0989
+   -2.8653   -2.3818   -3.6960
+   -2.7752   -2.7041   -4.9245
+   -2.0846   -3.8133    0.3865
+
+
+ covariance scale:
+
+ans =
+
+   -5.6288    3.1475    3.6875
+
+
+ covariance bias:
+
+ans =
+
+   -4.1443   -3.4956   -5.8816
+
+Standard deviation of the hyperparameters:
+    class1    class2    class
+
+ans =
+
+    2.2830    1.3990    3.1561
+    1.1812    0.9493    1.0325
+    2.4154    2.6441    2.5739
+    1.6467    2.0143    2.2844
+    1.9575    1.8164    1.4775
+    1.4304    1.2145    1.1626
+
+
+ covariance scale:
+
+ans =
+
+    1.4227    1.2579    1.0698
+
+
+ covariance bias:
+
+ans =
+
+    2.2577    2.0661    1.5719
+
+
+
+This takes about 10 minutes on a Silicon Graphics O2 machine.
+
+The program prints out the test error on and the hyperparameters for
+both the MAP and HMC estimates. Note that the MAP test error estimate
+is slightly better than the HMC estimate, which is perfectly
+possible. The majority of the cpu time is spent computing the HMC
+samples. If the code were rerun using the MAP estimate alone (see
+below), the program runs significantly faster.
+
+
+(Barber, Williams 1997) should be read before attempting to apply this
+procedure to new datasets.
+
+(Neal, 1993) should be read to gain insight into the HMC smapling
+procedure setttings.
+
+
+General Background notes on the code
+====================================
+
+The idea is to assume a Gaussian Process in the activation space,
+defined such that the probability of 1-of-m class is given by the
+softmax function of the activation vector(Barber, Williams 1997):
+
+p(class i | input x) = exp(activation_y(i))./sum(exp(activation_y))
+
+The GP then operates on the vector activation_y.
+
+The covariance of the activation vector is specified only between
+activations for the same class. That is, the covariance function for
+each of the m classes, given two input vectors x1 and x2 takes the
+form
+
+d = (x1-x2).^2;
+C(x1,x2) = scale.*exp(-0.5.*(w(1)*d(1) + w(2)*d(2) + ....) + bias
+           + jitter.^2*delta(x1,x2)
+
+(Note: correlations between activations of different classes are
+assumed to be zero.)
+
+The adjustable (hyper)parameters of this model are then
+log(scale),log(w),log(bias). After assigning Gaussian priors to these
+parameters, we obtain a posterior distribution for the parameters in
+light of the data. In order to make predictions, we then either
+estimate the maximum aposteriori parameters (MAP), or perform a Monte
+Carlo integration over the parameters (HMC).
+
+The term jitter^2 simply adds a term to the diagonal of the covariance
+matrix in order to reduce the possibility of numerical instability
+(Neal, 1997)
+
+
+Notes on the demo code
+======================
+
+The data is read in via the help of the variable
+
+col = [1 0 1 0 1 0 1 0 1 0 1 0 0 0 2 2 2 0 0 ]
+
+this specifies which of the input attributes are to be included
+and which are output variables:
+
+1 indicates that the attribute is to be included
+0 indicates that the attribute is not to be included
+2 indicates that this attribute is a class label
+( note: if there is more than one 2 in col, then 
+  	it is assumed that the class labels are in
+	the one-of-m class format (eg 0 1 0).
+	A single 2 denotes that the class labels
+	are integers (eg 2). )
+
+The training options are:
+
+meth = 'ml';	- MAP estimate only
+meth = 'hmc';	- HMC estimate only
+meth = 'ml_hmc';- do MAP and use this as a starting point for HMC
+
+
+The program generates several output files:
+
+
+For the MAP solution 
+====================
+
+oil_results.ml.smp	- this contains the MAP hyperparameters
+
+Then there are the parameters of the posterior (in activation space)
+used for prediction:
+
+oil_results.ml.eta oil_results.ml.eta	- mean
+oil_results.ml.eta oil_results.ml.var	- covariance matrix
+
+
+
+For the HMC solution 
+====================
+
+(Note that any files with the existing names will be appended to, and
+not overwritten. This is useful if one wishes to continue adding to
+the samples at a later stage)
+
+oil_results.vhmc.smp	- contains the HMC hyperparameter samples
+
+Then, for each sample, there is a corresponding posterior mean
+and covariance matrix contained in
+
+oil_results.vhmc.eta
+oil_results.vhmc.var
+
+In addition, there is a diagnostic file regarding the HMC sampling:
+
+oil_results.vhmc.diag
+
+and a log file containing the sampling set-up:
+
+oil_results.vhmc.log
+
+
+
+References
+==========
+
+(Barber, Williams 1997) Gaussian Processes for Bayesian Classification
+via Hybrid Monte Carlo. Advances in Neural INformation Processing
+Systems 9. MIT press
+
+
+(Neal, 1997)  Monte Carlo Implementation of Gaussian Process Models for
+Regression and Classification. http://www.cs.toronto.edu/~radford/).
+
+(Neal, 1993) Probabilistic inference using Markov chain Monte Carlo methods, Technical
+Report CRG-TR-93-1, Dept. of Computer Science, University of Toronto
+http://www.cs.utoronto.ca/~radford/
+
+

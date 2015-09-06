@@ -1,0 +1,109 @@
+%            Matlab code for Gaussian Processes for Classification:
+%                      GPCLASS version 0.2  10 Nov 97
+%       Copyright (c) David Barber and Christopher K I Williams (1997)
+
+%    This program is free software; you can redistribute it and/or modify
+%    it under the terms of the GNU General Public License as published by
+%    the Free Software Foundation; either version 2 of the License, or
+%    any later version.
+%
+%    This program is distributed in the hope that it will be useful,
+%    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%    GNU General Public License for more details.
+%
+%    You should have received a copy of the GNU General Public License
+%    along with this program; if not, write to the Free Software
+%    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+The main routines are
+
+mpot.m
+======
+
+calculates the log probability of being in a hyperparameter state
+
+
+mgrad.m
+=======
+
+calculates the derivate of the log probability of being in a hyperparameter state
+
+
+makepredm.m
+===========
+
+finds the means and covariance matrix for the activation posteriror
+for all the test and training points.
+
+
+driverm.m
+=========
+
+once the data has been set up, this program calls the 
+MAP routine or the HMC routine as appropriate
+
+getmode.m
+=========
+
+finds the laplace solution and associated parameters
+
+final_pred.m
+============
+
+calculates the mean predictions
+
+scg.m
+=====
+
+scaled conjugate gradient optimiser
+
+vhmcm.m
+=======
+
+Hybrid Monte Carlo routine
+
+vec2mitheta.m
+=============
+
+converts a vector representation of the hyperparameters to a matrix
+
+threshold.m
+===========
+
+thresholds values above a specified limit
+
+trlog.m
+=======
+
+calculates the trace(log(A)) = log(det(A))
+- useful if det(A) is very large ( or very small)
+
+putmclass.m
+===========
+
+stores the mean and covariance matrix of the posterior on file
+
+mprintf.m
+=========
+
+simple matrix print routine
+
+
+getmat.m
+========
+
+simple routine that loads in a matrix
+
+getnoise_sp.m
+=============
+
+calculates the noise matrix
+
+
+
+
+
+
+

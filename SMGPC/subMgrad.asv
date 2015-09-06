@@ -1,0 +1,101 @@
+// function [dnlK0] = subMgrad(m, ntr, invS5, ybp, FP, diagF)
+// 
+// for ci = 1:m
+//     for i = 1+ntr*(ci-1):ntr*ci
+//       for j = 1+ntr*(ci-1):ntr*ci
+//           dfdKmn = invS5*smgpCreateFormatMatrix( i, j, ybp );
+//           dnlK0(i, j) = diagF'*dfdKmn - 2.*trFPA(FP,dfdKmn,ntr,m);
+//       end
+//     end
+// end
+
+#include "mex.h" 
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) 
+{
+    double *invS5,*ybp,*FP,*diagF,*dK,*dfdKmn; 
+    mxArray *pDk,*pDfdKmn;
+    double *outData,*outData1,*outData2; 
+    int m,ntr,mntr,nDfdf,nTrFPA; 
+    int ci,i,j,k,t,c;
+    
+    m=mxGetScalar(prhs[0]); 
+    ntr=mxGetScalar(prhs[1]); 
+    invS5=mxGetPr(prhs[2]); 
+    ybp=mxGetPr(prhs[3]); 
+    FP=mxGetPr(prhs[4]); 
+    diagF=mxGetPr(prhs[5]); 
+    mntr = m*ntr;
+    plhs[0]=mxCreateDoubleMatrix(mntr,mntr,mxREAL); 
+//     plhs[1]=mxCreateDoubleMatrix(mntr,mntr,mxREAL); 
+//     plhs[2]=mxCreateDoubleMatrix(mntr,mntr,mxREAL); 
+    outData=mxGetPr(plhs[0]);  
+//     outData1=mxGetPr(plhs[1]);  
+//     outData2=mxGetPr(plhs[2]);  
+    
+    for(ci = 0; ci < m; ++ci)
+    {
+        for(i = ntr*ci; i < ntr*(ci+1); ++i)
+        {
+            for(j = ntr*ci; j < ntr*(ci+1); ++j)
+            {
+                // smgpCreateFormatMatrix
+                pDk = mxCreateDoubleMatrix(mntr,1,mxREAL);
+                dK = mxGetPr(pDk);        
+                dK[i] = ybp[j];
+                dK[j] = ybp[i];
+                if(ci == m-1 && i == ntr*m-1 && j == ntr*m-1)
+                {
+                    for (k=0; k < mntr; ++k)
+                    {
+                        mexPrintf("%4.3f\n  ",dK[k]); 
+                    }
+                }
+                
+                // dfdKmn = invS5*dK
+                pDfdKmn = mxCreateDoubleMatrix(mntr,1,mxREAL);
+                dfdKmn = mxGetPr(pDfdKmn);     
+                for(k = 0; k < mntr; ++k)
+                {
+                    for(t = 0; t < mntr; ++t)
+                        dfdKmn[k] +=  invS5[t*mntr+k]*dK[t];
+                 }
+                if(ci == m-1 && i == ntr*m-1 && j == ntr*m-1)
+                {
+                    for (k=0; k < mntr; ++k)
+                    {
+                        mexPrintf("%4.3f\n  ",dfdKmn[k]); 
+                    }
+                }
+                
+                // diagF'*dfdKmn
+                nDfdf = 0;
+                for(k = 0; k < mntr; ++ k)
+                {
+                    nDfdf += diagF[k]*dfdKmn[k];
+//                     if (ci == 1 && i == ntr && j == ntr+1 && k/mntr == 0)
+//                         mexPrintf("%d\n",nDfdf);
+                }
+                if(ci == m-1 && i == ntr*m-1 && j == ntr*m-1)
+                    mexPrintf("\n nDfdf : %d",nDfdf);
+
+                // 2.*trFPA(FP,dfdKmn,ntr,m)
+                nTrFPA = 0;
+                for(c=0; c<m; ++c)
+                {
+                    for (k = 0; k < ntr; ++k)
+                        nTrFPA += FP[c*ntr+k+k*mntr]*dfdKmn[c*ntr+k];
+                }
+                if(ci == m-1 && i == ntr*m-1 && j == ntr*m-1)
+                    mexPrintf("\n nTrFPA : %d",nTrFPA);
+                
+                // dnlK0(i, j)
+                outData[j*mntr+i] = nDfdf - 2*nTrFPA;
+                if(ci == m-1 && i == ntr*m-1 && j == ntr*m-1)
+                    mexPrintf("\n nDfdf - 2*nTrFPA : %d\n",nDfdf - 2*nTrFPA);
+                
+                mxDestroyArray(pDk);
+                mxDestroyArray(pDfdKmn);
+            }
+        }
+    }
+}

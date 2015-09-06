@@ -1,0 +1,12 @@
+function [ yy ] = transformLabel( y )
+%TRANSFORMLABEL Summary of this function goes here
+%   Detailed explanation goes here
+% y : n x m matrix with 1-of-m schame
+% yy : 1,...,m
+% m : number of class
+% n : number of sample
+
+
+
+end
+
