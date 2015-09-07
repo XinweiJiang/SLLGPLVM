@@ -12,7 +12,7 @@ Xinwei Jiang, Junbin Gao, Tianjiang Wang, Lihong Zheng. Supervised Latent Linear
 
 Experimental Settings:
 
-1. Enter directory sllgplvm\SGPC;
+1. Enter directory \SGPC;
 2. Run setdir.m to set paths;
 3. Run demos like demSllgplvmOilFT150, demSllgplvmUSPS5And3DC, demSllgplvm1VsRestOilNC
 
