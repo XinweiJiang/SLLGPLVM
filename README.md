@@ -25,3 +25,9 @@ For the multiple-class tasks, there are two options:
 2. or you can use function MultiSllgplvm1VsRest(...) based on one versus rest scheme. 
 
 However, for visulization, you have to make use of MultiSllgplvm(...), because function MultiSllgplvm1VsRest(...) do not return the result of latent variables but the classification accuracy.
+
+
+Drop me emails if there are questions or bugs for this paper or code.
+
+Homepage: http://www.xwjiang.com
+Email: ysjxw@hotmail.com
