@@ -13,7 +13,7 @@ N = size(sampleData,1);  % N is length of data
 M = size(sampleData,2);  % M is index for class
 nTest = size(testData,1);
 
-if strcmp(model.gType, 'smcgplvm') || strcmp(model.gType, 'mgpgplvm') || strcmp(model.gType, 'smctpslvm') || strcmp(model.gType, 'msaegp')
+if strcmp(model.gType, 'smcgplvm') || strcmp(model.gType, 'smclnngplvm') || strcmp(model.gType, 'smcgplvmgp') || strcmp(model.gType, 'mgpgplvm') || strcmp(model.gType, 'smctpslvm') || strcmp(model.gType, 'msaegp')
     nClass = model.M;
 else
     nClass = 1;
@@ -25,9 +25,9 @@ end
 
 distance = zeros(N, nTest, nClass);
 
-% Calculate distance for each sample with kernel function
+% Calculate euclidean distance for each sample
 %distance = dist2(sampleData(1:N, 1:(M-1)), reshape(testData,1,M-1));
-if strcmp(model.gType, 'smcgplvm') || strcmp(model.gType, 'mgpgplvm') || strcmp(model.gType, 'msaegp')
+if strcmp(model.gType, 'smcgplvm') || strcmp(model.gType, 'smclnngplvm') || strcmp(model.gType, 'smcgplvmgp') || strcmp(model.gType, 'mgpgplvm') || strcmp(model.gType, 'msaegp')
     Theta = vec2mitheta(model.kern.hyper,model.M);
     o = size(Theta,2);		% 	# parameters in the covariance function
     for ci = 1:model.M
@@ -37,6 +37,18 @@ if strcmp(model.gType, 'smcgplvm') || strcmp(model.gType, 'mgpgplvm') || strcmp(
 
         distance(:,:,ci) = setKernCompute(model.kern, sampleData(1:N, 1:(M-1)), testData);
     end
+elseif strcmp(model.gType, 'smctpslvm')
+    Theta = vec2mitheta(model.kern.hyper,model.M);
+    o = size(Theta,2);		% 	# parameters in the covariance function
+    for ci = 1:model.M
+        model.kern.bias = Theta(ci,o);
+
+        distance(:,:,ci) = setKernCompute(model.kern, sampleData(1:N, 1:(M-1)), testData);
+    end
+elseif strcmp(model.gType, 'smgpgplvm') || strcmp(model.gType, 'autoencodergp')        
+    distance(:,:,1) = kernCompute(model.modelL.kern, sampleData(1:N, 1:(M-1)), testData);
+elseif strcmp(model.gType, 'autoencodernn')        
+    distance(:,:,1) = dist2(sampleData(1:N, 1:(M-1)), testData);
 else
     [distance0, distance(:,:,1)] = feval(model.kern.covfunc{:}, model.kern.hyper, sampleData(1:N, 1:(M-1)), testData);
 end
