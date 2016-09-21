@@ -12,7 +12,7 @@ Xinwei Jiang, Junbin Gao, Tianjiang Wang, Lihong Zheng. Supervised Latent Linear
 
 Experimental Settings:
 
-1. Enter directory sllgplvm\SGPC;
+1. Enter directory \SGPC;
 2. Run setdir.m to set paths;
 3. Run demos like demSllgplvmOilFT150, demSllgplvmUSPS5And3DC, demSllgplvm1VsRestOilNC
 
@@ -25,3 +25,11 @@ For the multiple-class tasks, there are two options:
 2. or you can use function MultiSllgplvm1VsRest(...) based on one versus rest scheme. 
 
 However, for visulization, you have to make use of MultiSllgplvm(...), because function MultiSllgplvm1VsRest(...) do not return the result of latent variables but the classification accuracy.
+
+
+
+Drop me emails if there are questions or bugs for this paper or code.
+
+Homepage: http://www.xwjiang.com
+
+Email: ysjxw@hotmail.com
